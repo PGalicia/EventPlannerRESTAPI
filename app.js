@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const mysql = require("mysql");
+const connection = require("./utils/connection");
+
 
 const helloRoutes = require("./api/routes/hello");
 
@@ -12,16 +13,11 @@ app.use("/hello", helloRoutes);
 app.use("/users", (req, res) => {
     console.log("Fetching all users");
 
-    const connection = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: process.env.PASSWORD,
-        database: "sakila"
-    })
+    const dbconnection = connection;
 
     const queryString = "SELECT * FROM actor LIMIT 10";
 
-    connection.query(queryString, (err, rows, fields) => {
+    dbconnection.query(queryString, (err, rows, fields) => {
         
         if(err) {
             console.log("Failed to fetch users" + err);
