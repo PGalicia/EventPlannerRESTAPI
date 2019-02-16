@@ -4,6 +4,6 @@
     "DBHOST": "localhost",
     "DBUSER": "root",
     "DBPASSWORD": "password",
-    "DBNAME": "sakila"
+    "DBNAME": "projectnamor"
   }
 }

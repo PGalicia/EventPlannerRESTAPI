@@ -1,10 +1,14 @@
-const mysql = require("mysql");
+const Sequelize = require('sequelize');
 
-const connection = mysql.createConnection({
-    host: process.env.DBHOST,
-    user: process.env.DBUSER,
-    password: process.env.DBPASSWORD,
-    database: process.env.DBNAME
-})
+module.exports = new Sequelize(process.env.DBNAME, process.env.DBUSER, process.env.DBPASSWORD, {
+  host: process.env.DBHOST,
+  dialect: 'mysql',
+  operatorsAliases: false,
 
-module.exports = connection;
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  }
+});
