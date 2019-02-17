@@ -11,4 +11,10 @@ app.use(morgan("dev"));
 
 app.use("/events", eventsRoutes);
 
+app.use((req, res, next) => {
+    res.status(200).json({
+        message: 'Your connected to the server'
+    });
+});
+
 module.exports = app;
