@@ -41,15 +41,27 @@ router.get("/:eventId", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
-    const event = {
-        name: req.body.name,
-        location: req.body.location
-    };
+    // const event = {
+    //     eventName: req.body.eventName,
+    //     eventLocation: req.body.eventLocation,
+    //     eventTime: req.body.eventTime
+    // };
 
-    res.status(201).json({
-        message: "Event is created",
-        createdEvent: event
+    const newEvent = event.build({
+        eventName: req.body.eventName,
+        eventLocation: req.body.eventLocation,
+        eventTime: req.body.eventTime
     });
+
+    newEvent.save()
+        .then(e => {
+            res.status(201).json(e);
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        });
 });
 
 module.exports = router;
