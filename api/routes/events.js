@@ -20,9 +20,9 @@ router.get("/", (req, res, next) => {
 });
 
 // GET the event with specified the "id"
-router.get("/:id", (req, res, next) => {
+router.get("/:eventId", (req, res, next) => {
     
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
 
     console.log(`Fetching event ${eventId}`);
     
@@ -38,6 +38,18 @@ router.get("/:id", (req, res, next) => {
         .catch(err => {
             console.log(`Error: ${err}`);
         })
+});
+
+router.post("/", (req, res, next) => {
+    const event = {
+        name: req.body.name,
+        location: req.body.location
+    };
+
+    res.status(201).json({
+        message: "Event is created",
+        createdEvent: event
+    });
 });
 
 module.exports = router;
