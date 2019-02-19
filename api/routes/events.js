@@ -8,14 +8,14 @@ router.get("/", (req, res, next) => {
     
     console.log("Fetching all events");
     
-    event.findAll({
-        attributes: ['eventId', 'eventName', "eventLocation", "eventTime"]
-    })
+    event.findAll()
         .then(e => {
             res.status(200).json(e);
         })
         .catch(err => {
-            console.log(`Error: ${err}`);
+            res.status(500).json({
+                error: err
+            })
         })
 });
 
@@ -27,7 +27,6 @@ router.get("/:eventId", (req, res, next) => {
     console.log(`Fetching event ${eventId}`);
     
     event.findAll({
-        attributes: ['eventId', 'eventName', "eventLocation", "eventTime"],
         where: {
             eventId
         }
@@ -36,16 +35,14 @@ router.get("/:eventId", (req, res, next) => {
             res.status(200).json(e);
         })
         .catch(err => {
-            console.log(`Error: ${err}`);
+            res.status(500).json({
+                error: err
+            })
         })
 });
 
+// POST a new event
 router.post("/", (req, res, next) => {
-    // const event = {
-    //     eventName: req.body.eventName,
-    //     eventLocation: req.body.eventLocation,
-    //     eventTime: req.body.eventTime
-    // };
 
     const newEvent = event.build({
         eventName: req.body.eventName,
@@ -62,6 +59,46 @@ router.post("/", (req, res, next) => {
                 error: err
             })
         });
+});
+
+// PATCH the event with the specified "eventId"
+router.patch('/:eventId', (req, res, next) => {
+    const eventId = req.params.eventId;
+
+    console.log(`Fetching event ${eventId}`);
+    
+    event.findOne({
+        where: {
+            eventId
+        }
+    })
+        .then(e => {
+            res.status(e).json({
+                message: "Event updated!"
+            })
+        })
+});
+
+// DELETE the event with the specified "eventId"
+router.delete('/:eventId', (req, res, next) => {
+    
+    const eventId = req.params.eventId;
+    
+    event.destroy({
+        where: {
+            eventId
+        }
+    })
+        .then(e => {
+            res.status(200).json({
+                message: `event ${eventId} is deleted from database`
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
 });
 
 module.exports = router;
