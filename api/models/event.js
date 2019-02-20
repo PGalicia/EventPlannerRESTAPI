@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require("./../../utils/connection");
+const Guest = require("./guest");
 
 const Event = db.define('event', {
     eventId: { type:Sequelize.INTEGER, primaryKey:true, autoIncrement: true },
@@ -8,6 +9,6 @@ const Event = db.define('event', {
     eventTime: { type: Sequelize.STRING }
 }, {
     timestamps: false
-})
+});
 
 module.exports = Event;

@@ -1,19 +1,32 @@
+const Sequelize = require("sequelize");
 const express = require("express");
 const router = express.Router();
 
-const event = require("./../models/event");
+// Imports: Models
+const Event = require("./../models/event");
+const Guest = require("./../models/guest");
+const EventGuest = require("./../models/eventGuest");
+
+// Association
+Event.Guest = Guest.belongsToMany(Event, { 
+    as: "guest",
+    foreignKey: "eventId", 
+    otherKey: 'guestId',
+    through: EventGuest
+});
 
 // GET all events
 router.get("/", (req, res, next) => {
-    
+
     console.log("Fetching all events");
-    
-    event.findAll()
+
+    Event.findAll()
         .then(e => {
             res.status(200).json(e);
         })
         .catch(err => {
             res.status(500).json({
+                message: "Hi there",
                 error: err
             })
         })
@@ -26,7 +39,7 @@ router.get("/:eventId", (req, res, next) => {
 
     console.log(`Fetching event ${eventId}`);
     
-    event.findAll({
+    Event.findAll({
         where: {
             eventId
         }
@@ -44,13 +57,21 @@ router.get("/:eventId", (req, res, next) => {
 // POST a new event
 router.post("/", (req, res, next) => {
 
-    const newEvent = event.build({
+    Event.create({
         eventName: req.body.eventName,
         eventLocation: req.body.eventLocation,
-        eventTime: req.body.eventTime
-    });
+        eventTime: req.body.eventTime,
+        guest: [
+            { guestName: "Monica" },
+            { guestName: "Chandler" },
+        ]
 
-    newEvent.save()
+    }, {
+        include: [{
+            association: Event.Guest,
+            model: Guest
+        }]
+    })
         .then(e => {
             res.status(201).json(e);
         })
@@ -66,17 +87,23 @@ router.patch('/:eventId', (req, res, next) => {
     const eventId = req.params.eventId;
 
     console.log(`Fetching event ${eventId}`);
-    
-    event.findOne({
+
+    Event.update({
+        eventName: req.body.eventName
+    },{
+        returning: true,
         where: {
             eventId
         }
     })
         .then(e => {
-            res.status(e).json({
-                message: "Event updated!"
-            })
+            res.status(200).json(e)
         })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        });
 });
 
 // DELETE the event with the specified "eventId"
@@ -84,7 +111,7 @@ router.delete('/:eventId', (req, res, next) => {
     
     const eventId = req.params.eventId;
     
-    event.destroy({
+    Event.destroy({
         where: {
             eventId
         }
