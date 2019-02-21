@@ -2,6 +2,10 @@ const Sequelize = require("sequelize");
 const express = require("express");
 const router = express.Router();
 
+// Import: Middleware
+const checkFormatGuest = require("./../middleware/checkFormatGuest");
+
+
 // Imports: Models
 const Event = require("./../models/event");
 const Guest = require("./../models/guest");
@@ -9,11 +13,13 @@ const EventGuest = require("./../models/eventGuest");
 
 // Association
 Event.Guest = Guest.belongsToMany(Event, { 
-    as: "guest",
+    as: "guests",
     foreignKey: "eventId", 
     otherKey: 'guestId',
     through: EventGuest
 });
+
+
 
 // GET all events
 router.get("/", (req, res, next) => {
@@ -26,7 +32,6 @@ router.get("/", (req, res, next) => {
         })
         .catch(err => {
             res.status(500).json({
-                message: "Hi there",
                 error: err
             })
         })
@@ -55,16 +60,13 @@ router.get("/:eventId", (req, res, next) => {
 });
 
 // POST a new event
-router.post("/", (req, res, next) => {
+router.post("/", checkFormatGuest, (req, res, next) => {
 
     Event.create({
         eventName: req.body.eventName,
         eventLocation: req.body.eventLocation,
         eventTime: req.body.eventTime,
-        guest: [
-            { guestName: "Monica" },
-            { guestName: "Chandler" },
-        ]
+        guests: req.body.guest
 
     }, {
         include: [{
