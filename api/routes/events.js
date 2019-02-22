@@ -5,7 +5,6 @@ const router = express.Router();
 // Import: Middleware
 const checkFormatGuest = require("./../middleware/checkFormatGuest");
 
-
 // Imports: Models
 const Event = require("./../models/event");
 const Guest = require("./../models/guest");
@@ -19,7 +18,9 @@ Event.Guest = Guest.belongsToMany(Event, {
     through: EventGuest
 });
 
-
+/*
+    HTTP Requests
+*/
 
 // GET all events
 router.get("/", (req, res, next) => {

@@ -4,17 +4,18 @@
             else, throw an error
     Valid Attributes:
         - guestName: String
+        - isGoing: Boolean
 
     Format:
         [
-            { guestName: "Chandler"}
+            { guestName: "Chandler", isGoing: true }
         ]
 */
 
 module.exports = (req, res, next) => {
     const guests = req.body.guest;
     
-    const validAttributes = ["guestName"];
+    const validAttributes = ["guestName", "isGoing"];
 
     // If 'guests' is not an array throw an error
     if(!Array.isArray(guests)) { next(Error("The guest list given is not an array")); }
