@@ -26,6 +26,17 @@ app.use((req, res, next) => {
     next();
   });
 
+
+// Check database connection
+db
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
+  
 // Routes that handles the requests
 app.use("/events", eventsRoutes);
 

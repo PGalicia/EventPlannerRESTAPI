@@ -23,6 +23,20 @@ Event.Guest = Guest.belongsToMany(Event, {
 */
 
 // GET all events
+// router.get("/", (req, res, next) => {
+
+//     console.log("Fetching all events");
+
+//     Event.findAll()
+//         .then(e => {
+//             res.status(200).json(e);
+//         })
+//         .catch(err => {
+//             res.status(500).json({
+//                 error: err
+//             })
+//         })
+// });
 router.get("/", (req, res, next) => {
 
     console.log("Fetching all events");
