@@ -8,7 +8,9 @@ const checkFormatGuest = require("./../middleware/checkFormatGuest");
 // Imports: Models
 const Event = require("./../models/event");
 const Guest = require("./../models/guest");
+const Item = require("./../models/item");
 const EventGuest = require("./../models/eventGuest");
+const EventItem = require("./../models/eventItem");
 
 // Association
 // Event.Guest = Guest.belongsToMany(Event, { 
@@ -31,6 +33,8 @@ const EventGuest = require("./../models/eventGuest");
 //     otherKey: "guestId",
 //     through: EventGuest
 // });
+
+// Event_Guest
 Event.belongsToMany(Guest, { 
     // as: "event_guest",
     foreignKey: "eventId", 
@@ -43,6 +47,19 @@ Guest.belongsToMany(Event, {
     foreignKey: "guestId",
     otherKey: "eventId", 
     through: EventGuest
+});
+
+// Event_Item
+Event.belongsToMany(Item, { 
+    foreignKey: "eventId", 
+    otherKey: "itemId",
+    through: EventItem
+});
+
+Item.belongsToMany(Event, { 
+    foreignKey: "itemId", 
+    otherKey: "eventId",
+    through: EventItem
 });
 
 /*
@@ -73,7 +90,12 @@ router.get("/", (req, res, next) => {
             model: Guest,
             through: {
                 attributes: []
-            },
+            }
+        }, {
+            model: Item,
+            through: {
+                attributes: []
+            }
         }]
     })
         .then(e => {
