@@ -1,9 +1,6 @@
-const Sequelize = require('sequelize');
 const db = require("./../../utils/connection");
 
-const EventGuest = db.define('eventGuest', {}, {
+module.exports = db.define('event_guest', {}, {
     timestamps: false,
     freezeTableName: true
 });
-
-module.exports = EventGuest;

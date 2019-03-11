@@ -1,13 +1,10 @@
 const Sequelize = require('sequelize');
 const db = require("./../../utils/connection");
-const Event = require("./event");
 
-const Guest = db.define('guest', {
-    guestId: { type:Sequelize.INTEGER, primaryKey:true, autoIncrement: true },
-    guestName: { type: Sequelize.STRING },
-    isGoing: { type: Sequelize.BOOLEAN }
+module.exports = db.define('guest', {
+    rowid: { type:Sequelize.INTEGER, primaryKey:true, autoIncrement: true },
+    name: { type: Sequelize.STRING }
 }, {
-    timestamps: false
+    timestamps: false,
+    freezeTableName: true
 });
-
-module.exports = Guest;

@@ -7,6 +7,7 @@ const db = require("./utils/connection");
 // routes
 const helloRoutes = require("./api/routes/hello");
 const eventsRoutes = require("./api/routes/events");
+const guestsRoutes = require("./api/routes/guests");
 
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -39,6 +40,7 @@ db
   
 // Routes that handles the requests
 app.use("/events", eventsRoutes);
+app.use("/guests", guestsRoutes);
 
 // Route that handles a path that does not exist
 app.use((req, res, next) => {
