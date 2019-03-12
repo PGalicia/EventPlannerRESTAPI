@@ -11,6 +11,7 @@ const Guest = require("./../models/guest");
 const Item = require("./../models/item");
 const EventGuest = require("./../models/eventGuest");
 const EventItem = require("./../models/eventItem");
+const AssignedItem = require("./../models/assignedItem");
 
 // Association
 // Event.Guest = Guest.belongsToMany(Event, { 
@@ -50,16 +51,29 @@ Guest.belongsToMany(Event, {
 });
 
 // Event_Item
-Event.belongsToMany(Item, { 
-    foreignKey: "eventId", 
-    otherKey: "itemId",
-    through: EventItem
+// Event.belongsToMany(Item, { 
+//     foreignKey: "eventId", 
+//     otherKey: "itemId",
+//     through: EventItem
+// });
+
+// Item.belongsToMany(Event, { 
+//     foreignKey: "itemId", 
+//     otherKey: "eventId",
+//     through: EventItem
+// });
+
+// Assigned_Item
+Event.hasMany(AssignedItem, {
+    foreignKey: "eventId"
 });
 
-Item.belongsToMany(Event, { 
-    foreignKey: "itemId", 
-    otherKey: "eventId",
-    through: EventItem
+Guest.hasMany(AssignedItem, {
+    foreignKey: "guestId"
+});
+
+Item.hasMany(AssignedItem, {
+    foreignKey: "itemId"
 });
 
 /*
@@ -92,11 +106,11 @@ router.get("/", (req, res, next) => {
                 attributes: []
             }
         }, {
-            model: Item,
-            through: {
-                attributes: []
-            }
+            model: AssignedItem
         }]
+        // include: [{
+        //     model: AssignedItem
+        // }]
     })
         .then(e => {
             res.status(200).json(e);
