@@ -36,8 +36,7 @@ const AssignedItem = require("./../models/assignedItem");
 // });
 
 // Event_Guest
-Event.belongsToMany(Guest, { 
-    // as: "event_guest",
+Event.belongsToMany(Guest, {
     foreignKey: "eventId", 
     otherKey: "guestId",
     through: EventGuest
@@ -81,20 +80,6 @@ Item.hasMany(AssignedItem, {
 */
 
 // GET all events
-// router.get("/", (req, res, next) => {
-
-//     console.log("Fetching all events");
-
-//     Event.findAll()
-//         .then(e => {
-//             res.status(200).json(e);
-//         })
-//         .catch(err => {
-//             res.status(500).json({
-//                 error: err
-//             })
-//         })
-// });
 router.get("/", (req, res, next) => {
 
     console.log("Fetching all events");
@@ -103,16 +88,17 @@ router.get("/", (req, res, next) => {
         include: [{
             model: Guest,
             through: {
-                attributes: []
+                attributes: [],
+                // where: {
+                //     isGoing: 1
+                // }
             }
         }, {
             model: AssignedItem
         }]
-        // include: [{
-        //     model: AssignedItem
-        // }]
     })
         .then(e => {
+            // res.status(200).json(e[0].assignedItems);
             res.status(200).json(e);
         })
         .catch(err => {
@@ -122,27 +108,36 @@ router.get("/", (req, res, next) => {
         })
 });
 
-// // GET the event with specified the "id"
-// router.get("/:eventId", (req, res, next) => {
+// GET the event with specified the "id"
+router.get("/:eventId", (req, res, next) => {
     
-//     const eventId = req.params.eventId;
+    const eventId = req.params.eventId;
 
-//     console.log(`Fetching event ${eventId}`);
+    console.log(`Fetching event ${eventId}`);
     
-//     Event.findAll({
-//         where: {
-//             eventId
-//         }
-//     })
-//         .then(e => {
-//             res.status(200).json(e);
-//         })
-//         .catch(err => {
-//             res.status(500).json({
-//                 error: err
-//             })
-//         })
-// });
+    Event.findOne({
+        where: {
+            rowid: eventId
+        },
+        include: [{
+            model: Guest,
+            through: {
+                attributes: []
+            }
+        }, {
+            model: AssignedItem
+        }]
+    })
+        .then(e => {
+            // res.status(200).json(e[0].assignedItems);
+            res.status(200).json(e);
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+});
 
 // // POST a new event
 // router.post("/", checkFormatGuest, (req, res, next) => {
