@@ -86,6 +86,12 @@ Item.hasMany(AssignedItem, {
         - On HTTP PATCH request, it will only change the main
         information under the event such as the name of the event,
         or location. It CANNOT change Guest's or Item's information.
+        - On HTTP POST request, it will add the main information under
+        the event such as the name of the event, or location. In addition,
+        it will automatically add the guest as the possible attendees for 
+        that event.
+        - On HTTP DELETE request, it will delete the rows with the specified
+        id in EVENT, ASSIGNEDITEM, and EVENTGUEST
 */
 
 // GET all events
@@ -142,7 +148,6 @@ router.get("/:eventId", (req, res, next) => {
         }]
     })
         .then(e => {
-            // res.status(200).json(e[0].assignedItems);
             res.status(200).json(e);
         })
         .catch(err => {
@@ -152,30 +157,44 @@ router.get("/:eventId", (req, res, next) => {
         })
 });
 
-// // POST a new event
-// router.post("/", checkFormatGuest, (req, res, next) => {
+// POST a new event
+router.post("/", (req, res, next) => {
 
-//     Event.create({
-//         eventName: req.body.eventName,
-//         eventLocation: req.body.eventLocation,
-//         eventTime: req.body.eventTime,
-//         guests: req.body.guest
+    let newEventId = null;
 
-//     }, {
-//         include: [{
-//             association: Event.Guest,
-//             model: Guest
-//         }]
-//     })
-//         .then(e => {
-//             res.status(201).json(e);
-//         })
-//         .catch(err => {
-//             res.status(500).json({
-//                 error: err
-//             })
-//         });
-// });
+    Event.create({
+        name: req.body.name
+    })
+        .then(result => {
+            newEventId = result.rowid;
+            return Guest.findAll({
+                attributes: [["rowid", "guestId"]],
+                raw: true
+            })
+        })
+        .then(guests => {
+            for(let guest of guests) {
+                guest.isGoing = 0;
+                guest.eventId = newEventId;
+            }
+            return guests;
+        })
+        .then(guests => {
+            for(let guest of guests) {
+                EventGuest.create(guest);
+            }
+        })
+        .then(() => {
+            res.status(201).json({
+                message: "Event is succesfull created"
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        });
+});
 
 // PATCH the event with the specified "eventId"
 router.patch('/:eventId', checkFormatEvent, (req, res, next) => {
@@ -200,26 +219,41 @@ router.patch('/:eventId', checkFormatEvent, (req, res, next) => {
         });
 });
 
-// // DELETE the event with the specified "eventId"
-// router.delete('/:eventId', (req, res, next) => {
+// DELETE the event with the specified "eventId"
+router.delete('/:eventId', (req, res, next) => {
     
-//     const eventId = req.params.eventId;
+    const rowid = req.params.eventId;
     
-//     Event.destroy({
-//         where: {
-//             eventId
-//         }
-//     })
-//         .then(e => {
-//             res.status(200).json({
-//                 message: `event ${eventId} is deleted from database`
-//             });
-//         })
-//         .catch(err => {
-//             res.status(500).json({
-//                 error: err
-//             })
-//         })
-// });
+    Event.destroy({
+        where: {
+            rowid
+        }
+    })
+        .then(() => {
+            EventGuest.destroy({
+                where: {
+                    eventId: rowid
+                }
+            })
+        })
+        .then(() => {
+            AssignedItem.destroy({
+                where: {
+                    eventId: rowid
+                }
+            })
+        })
+        
+        .then(e => {
+            res.status(200).json({
+                message: `event ${rowid} is deleted from EVENT, ASSIGNEDITEM, and EVENTGUEST`
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+});
 
 module.exports = router;
