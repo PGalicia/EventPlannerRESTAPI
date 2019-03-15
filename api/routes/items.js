@@ -2,9 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 // Imports: Models
-// const Event = require("./../models/event");
-// const Guest = require("../models/guest");
-// const EventGuest = require("./../models/eventGuest");
 const Item = require("./../models/item");
 
 // GET all events
