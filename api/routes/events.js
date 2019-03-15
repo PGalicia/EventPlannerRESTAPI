@@ -2,39 +2,23 @@ const Sequelize = require("sequelize");
 const express = require("express");
 const router = express.Router();
 
-// Import: Middleware
-const checkFormatGuest = require("./../middleware/checkFormatGuest");
+/* 
+    Imports
+*/
+
+// Middleware
 const checkFormatEvent = require("./../middleware/checkFormatEvent");
 
-// Imports: Models
+// Models
 const Event = require("./../models/event");
 const Guest = require("./../models/guest");
 const Item = require("./../models/item");
 const EventGuest = require("./../models/eventGuest");
-const EventItem = require("./../models/eventItem");
 const AssignedItem = require("./../models/assignedItem");
 
-// Association
-// Event.Guest = Guest.belongsToMany(Event, { 
-//     // as: "event_guest",
-//     foreignKey: "eventId", 
-//     otherKey: "guestId",
-//     through: EventGuest
-// });
-
-// Event.belongsToMany(Guest, { 
-//     // as: "event_guest",
-//     foreignKey: "guestId",
-//     otherKey: "eventId", 
-//     through: EventGuest
-// });
-
-// Guest.belongsToMany(Event, { 
-//     // as: "event_guest",
-//     foreignKey: "eventId", 
-//     otherKey: "guestId",
-//     through: EventGuest
-// });
+/*
+    Associations
+*/
 
 // Event_Guest
 Event.belongsToMany(Guest, {
@@ -44,24 +28,10 @@ Event.belongsToMany(Guest, {
 });
 
 Guest.belongsToMany(Event, { 
-    // as: "event_guest",
     foreignKey: "guestId",
     otherKey: "eventId", 
     through: EventGuest
 });
-
-// Event_Item
-// Event.belongsToMany(Item, { 
-//     foreignKey: "eventId", 
-//     otherKey: "itemId",
-//     through: EventItem
-// });
-
-// Item.belongsToMany(Event, { 
-//     foreignKey: "itemId", 
-//     otherKey: "eventId",
-//     through: EventItem
-// });
 
 // Assigned_Item
 Event.hasMany(AssignedItem, {
