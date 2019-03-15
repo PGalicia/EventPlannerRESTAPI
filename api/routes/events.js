@@ -4,6 +4,7 @@ const router = express.Router();
 
 // Import: Middleware
 const checkFormatGuest = require("./../middleware/checkFormatGuest");
+const checkFormatEvent = require("./../middleware/checkFormatEvent");
 
 // Imports: Models
 const Event = require("./../models/event");
@@ -77,6 +78,14 @@ Item.hasMany(AssignedItem, {
 
 /*
     HTTP Requests
+
+    Additional Notes:
+        - On HTTP GET request, it will retrieve event information
+        including information associated with that event
+        such as Guest, and Item.
+        - On HTTP PATCH request, it will only change the main
+        information under the event such as the name of the event,
+        or location. It CANNOT change Guest's or Item's information.
 */
 
 // GET all events
@@ -89,6 +98,10 @@ router.get("/", (req, res, next) => {
             model: Guest,
             through: {
                 attributes: [],
+                /*
+                    The attribute below are used to
+                    only show which ones are going
+                */
                 // where: {
                 //     isGoing: 1
                 // }
@@ -164,29 +177,28 @@ router.get("/:eventId", (req, res, next) => {
 //         });
 // });
 
-// // PATCH the event with the specified "eventId"
-// router.patch('/:eventId', (req, res, next) => {
-//     const eventId = req.params.eventId;
-
-//     console.log(`Fetching event ${eventId}`);
-
-//     Event.update({
-//         eventName: req.body.eventName
-//     },{
-//         returning: true,
-//         where: {
-//             eventId
-//         }
-//     })
-//         .then(e => {
-//             res.status(200).json(e)
-//         })
-//         .catch(err => {
-//             res.status(500).json({
-//                 error: err
-//             })
-//         });
-// });
+// PATCH the event with the specified "eventId"
+router.patch('/:eventId', checkFormatEvent, (req, res, next) => {
+    const rowid = req.params.eventId;
+    const query = req.query;
+    console.log(`Fetching event ${rowid}`);
+    
+    Event.update(query, {
+        where: {
+            rowid
+        }
+    })
+        .then(e => {
+            res.status(200).json({
+                message: "Updated Succesfully"
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        });
+});
 
 // // DELETE the event with the specified "eventId"
 // router.delete('/:eventId', (req, res, next) => {
