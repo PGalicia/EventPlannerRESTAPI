@@ -1,15 +1,5 @@
 /*
-    Description: Check that the user inputs with the guests adheres to the format given below
-        and if so, next()
-            else, throw an error
-    Valid Attributes:
-        - guestName: String
-        - isGoing: Boolean
-
-    Format:
-        [
-            { guestName: "Chandler", isGoing: true }
-        ]
+    Description: 
 */
 
 module.exports = (req, res, next) => {
