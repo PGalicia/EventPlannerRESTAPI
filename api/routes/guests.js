@@ -10,9 +10,16 @@ const checkFormatGuest = require("./../middleware/checkFormatGuest");
 
 // Models
 const Event = require("./../models/event");
-const Guest = require("../models/guest");
+const Guest = require("./../models/guest");
+const Item = require("./../models/item");
 const EventGuest = require("./../models/eventGuest");
+const AssignedItem = require("./../models/assignedItem");
 
+/*
+    Associations
+*/
+
+// Event_Guest
 Event.belongsToMany(Guest, {
     foreignKey: "eventId", 
     otherKey: "guestId",
@@ -23,6 +30,19 @@ Guest.belongsToMany(Event, {
     foreignKey: "guestId",
     otherKey: "eventId", 
     through: EventGuest
+});
+
+// Assigned_Item
+Event.hasMany(AssignedItem, {
+    foreignKey: "eventId"
+});
+
+Guest.hasMany(AssignedItem, {
+    foreignKey: "guestId"
+});
+
+Item.hasMany(AssignedItem, {
+    foreignKey: "itemId"
 });
 
 /*
@@ -105,6 +125,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
     const eventId = req.params.eventId;
     const guestId = req.params.guestId;
     const isGoing = Number.parseInt(req.params.isGoing);
+    let rowIdList = [];
 
     EventGuest.update({isGoing}, {
         where: {
@@ -112,18 +133,63 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             guestId
         }
     })
+        .then(() => {
+            return AssignedItem.findAll({
+                where: {
+                    eventId,
+                    guestId
+                },
+                raw: true
+            })
+        })
+        .then(allocatedItems => {
+            // ONLY do this action if isGoing is set to false(0)
+            if (isGoing === 1) { return; }
+            // Store all the returned rowid
+            console.log(allocatedItems);
+            for(let row of allocatedItems) {
+                rowIdList.push(row.rowid);
+            }
+            console.log(rowIdList);
+            // Change the first guestId to null and Delete everything else
+
+            for(let id = 0; id < rowIdList.length; id++) {
+                // For the first item in the list
+                // update the guestId to null
+                if(id === 0) {
+                    AssignedItem.update({guestId: null}, {
+                        where: {
+                            rowid: rowIdList[id]
+                        }
+                    });
+                    continue;
+                }
+                // For the rest, delete it
+                AssignedItem.destroy({
+                    where: {
+                        rowid: rowIdList[id]
+                    }
+                })
+            }
+        })
         .then(e => {
+            // res.status(200).json(e);
             res.status(200).json({
                 message: "Updated Succesfully"
             });
         })
-        .catch(e => {
+        .catch(err => {
             res.status(500).json({
                 error: err
             })
         });
     // Find the guest in a particular event
     // then toggle their "isGoing" property
+    // Look at the assignedItem table
+    // Check how many items the now notAttending guest are assigned with
+    // If there's none, just move on
+    // If there's only one change "guestId" to null
+    // If there's multiple, still change one guestId to null then remove the rest
 });
 
 module.exports = router;
