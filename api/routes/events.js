@@ -103,7 +103,7 @@ router.get("/:eventId", (req, res, next) => {
         include: [{
             model: Guest,
             through: {
-                attributes: []
+                attributes: ["isGoing"]
             }
         }, {
             model: AssignedItem
@@ -125,7 +125,9 @@ router.post("/", checkBodyFormat, (req, res, next) => {
     let newEventId = null;
 
     Event.create({
-        name: req.body.name
+        name: req.body.name,
+        datetime: req.body.datetime,
+        location: req.body.location
     })
         .then(result => {
             newEventId = result.rowid;
@@ -186,11 +188,21 @@ router.delete('/:eventId', (req, res, next) => {
     
     const rowid = req.params.eventId;
     
-    Event.destroy({
+    Event.findOne({
         where: {
             rowid
         }
     })
+        .then(result => {
+            if(!result) {
+                throw `Event ${rowid} does not exist`;
+            }
+            Event.destroy({
+                where: {
+                    rowid
+                }
+            })
+        })
         .then(() => {
             EventGuest.destroy({
                 where: {
@@ -205,7 +217,6 @@ router.delete('/:eventId', (req, res, next) => {
                 }
             })
         })
-        
         .then(e => {
             res.status(200).json({
                 message: `event ${rowid} is deleted from EVENT, ASSIGNEDITEM, and EVENTGUEST`

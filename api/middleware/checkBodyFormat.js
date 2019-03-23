@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
 
     console.log(bodyInfo);
     // Check if the keys are all valid
-    const validKeys = ["name"];
+    const validKeys = ["name", "datetime", "location"];
 
     // Check if the users even gave the right amount of values
     if(Object.keys(bodyInfo).length !== validKeys.length) {

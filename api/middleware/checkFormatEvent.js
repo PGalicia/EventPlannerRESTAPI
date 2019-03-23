@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
     // Get all the queries
     const queries = req.query;
 
-    const validColumn = ["name"];
+    const validColumn = ["name", "datetime", "location"];
 
     /*
         Use this format later to send error
