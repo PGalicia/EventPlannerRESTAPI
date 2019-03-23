@@ -1,8 +1,53 @@
 const express = require("express");
 const router = express.Router();
 
-// Imports: Models
+/* 
+    Imports
+*/
+
+// Middleware
+
+// Models
+const Event = require("./../models/event");
+const Guest = require("./../models/guest");
 const Item = require("./../models/item");
+const EventGuest = require("./../models/eventGuest");
+const AssignedItem = require("./../models/assignedItem");
+
+/*
+    Associations
+*/
+
+// Event_Guest
+Event.belongsToMany(Guest, {
+    foreignKey: "eventId", 
+    otherKey: "guestId",
+    through: EventGuest
+});
+
+Guest.belongsToMany(Event, { 
+    foreignKey: "guestId",
+    otherKey: "eventId", 
+    through: EventGuest
+});
+
+// Assigned_Item
+Event.hasMany(AssignedItem, {
+    foreignKey: "eventId"
+});
+
+Guest.hasMany(AssignedItem, {
+    foreignKey: "guestId"
+});
+
+Item.hasMany(AssignedItem, {
+    foreignKey: "itemId"
+});
+
+/*
+    HTTP Requests
+
+*/
 
 // GET all events
 router.get("/", (req, res, next) => {
@@ -18,6 +63,76 @@ router.get("/", (req, res, next) => {
                 error: err
             })
         })
+});
+
+// POST a new item in the specified event
+// Check if 'eventId' exist, if so continue, if not throw error
+// Check that item does not exist on the item table, if it exist, just move one
+// If not, add item into the Item table
+// Add row in the assigned Item table
+router.post("/:eventId", (req, res, next) => {
+    
+    const rowid = req.params.eventId;
+    const name = req.body.name.toLowerCase();
+    const newItemId = null;
+    
+    console.log(`Creating a new item for event ${rowid}`);
+
+    Event.findOne({
+        where: {
+            rowid
+        }
+    })
+        .then(result => {
+            // Error will be thrown id the event id specfied does not exist
+            if(!result) {
+                throw new Error(`The eventId (${rowid}) you specified does not exist`)
+            }
+
+            return Item.findOne({
+                where: {
+                    name
+                }
+            })
+        })
+        .then(result => {
+            
+            // If item does not exist, add it to the item table and find it's id
+            if(!result) {
+                Item.create({
+                    name
+                });
+                return Item.findOne({
+                    where: {
+                        name
+                    }
+                });
+            }
+            return result;
+        })
+        .then(result => {
+            return AssignedItem.create({
+                eventId: rowid,
+                itemId: result.rowid,
+                guestId: null
+            })
+        })
+        .then(e => {
+            res.status(201).json({
+                message: `'${name}' is succesfully added to event ${rowid}`
+            })
+            // res.status(201).json(e);
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err.message
+            })
+        });
+});
+
+// DELETE item from specified event
+router.delete("/:eventId/:itemId", (req, res, next) => {
+    null
 });
 
 module.exports = router;

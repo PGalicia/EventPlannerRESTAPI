@@ -128,6 +128,7 @@ router.get("/:eventId", (req, res, next) => {
 });
 
 // POST a new event
+// **Task: I should add a middleware that checks whatever is being put on the BODY
 router.post("/", (req, res, next) => {
 
     let newEventId = null;
@@ -156,7 +157,7 @@ router.post("/", (req, res, next) => {
         })
         .then(() => {
             res.status(201).json({
-                message: "Event is succesfull created"
+                message: "Event is succesfully created"
             });
         })
         .catch(err => {
