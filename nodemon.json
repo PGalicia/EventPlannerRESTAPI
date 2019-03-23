@@ -1,9 +1,5 @@
 {
   "env": {
-    "PORT": 3001,
-    "DBHOST": "localhost",
-    "DBUSER": "root",
-    "DBPASSWORD": "password",
-    "DBNAME": "projectnamor"
+    "PORT": 3001
   }
 }

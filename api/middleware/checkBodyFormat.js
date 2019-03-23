@@ -1,5 +1,11 @@
 /*
-    Description: 
+    Description: Check if the body inputted followed the format below
+    Format:
+        {
+            "name": "Some event",
+            "datetime": "YYYY-MM-DD HH:MM:SS",
+            "location": "Some location"
+        }
 */
 
 module.exports = (req, res, next) => {

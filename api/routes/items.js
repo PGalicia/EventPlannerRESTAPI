@@ -47,6 +47,13 @@ Item.hasMany(AssignedItem, {
 /*
     HTTP Requests
 
+    Additional Notes:
+        - On HTTP POST request, it will add a row on the assignedItem
+        table, and if the added item does not exist on the item table,
+        it will add the new item there as well.
+        - On HTTP DELETE request, it will delete the item on
+        the assignedItem table and not in the Item table.
+
 */
 
 // GET all events
@@ -74,7 +81,6 @@ router.post("/:eventId", (req, res, next) => {
     
     const rowid = req.params.eventId;
     const name = req.body.name.toLowerCase();
-    const newItemId = null;
     
     console.log(`Creating a new item for event ${rowid}`);
 
@@ -86,7 +92,7 @@ router.post("/:eventId", (req, res, next) => {
         .then(result => {
             // Error will be thrown id the event id specfied does not exist
             if(!result) {
-                throw new Error(`The eventId (${rowid}) you specified does not exist`)
+                throw `The eventId (${rowid}) you specified does not exist`;
             }
 
             return Item.findOne({
@@ -121,11 +127,10 @@ router.post("/:eventId", (req, res, next) => {
             res.status(201).json({
                 message: `'${name}' is succesfully added to event ${rowid}`
             })
-            // res.status(201).json(e);
         })
         .catch(err => {
             res.status(500).json({
-                error: err.message
+                error: err
             })
         });
 });
@@ -150,7 +155,7 @@ router.delete("/:eventId/:itemId", (req, res, next) => {
     })
         .then(result => {
             if(!result) {
-                throw new Error(`Item ${itemId} and/or Event ${eventId} does not exist`)
+                throw `Item ${itemId} and/or Event ${eventId} does not exist`;
             }
             AssignedItem.destroy({
                 where: {
@@ -166,7 +171,7 @@ router.delete("/:eventId/:itemId", (req, res, next) => {
         })
         .catch(err => {
             res.status(500).json({
-                message: err.message
+                message: err
             });
         })
 });

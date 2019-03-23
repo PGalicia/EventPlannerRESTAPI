@@ -1,5 +1,6 @@
 /*
-    Description: 
+    Description: Check if the query inputted followed the format below
+    Format: name=some+event&datetime=YYYY-MM-DD+HH:MM:SS&location=some+location
 */
 
 module.exports = (req, res, next) => {
@@ -7,16 +8,6 @@ module.exports = (req, res, next) => {
     const queries = req.query;
 
     const validColumn = ["name", "datetime", "location"];
-
-    /*
-        Use this format later to send error
-    */
-    // JSON.parse(`
-    //     {
-    //         error: "${key}" is not a valid column,
-    //         validColumns: ${validColumn.toString()}
-    //     }
-    // `);
 
     // Check if queries matches the attributes of event tables
     for(let key of Object.keys(queries)) {
