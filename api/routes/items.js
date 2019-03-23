@@ -132,7 +132,43 @@ router.post("/:eventId", (req, res, next) => {
 
 // DELETE item from specified event
 router.delete("/:eventId/:itemId", (req, res, next) => {
-    null
+    // Check if eventId exist
+    // Check if itemId exist
+    // Find the appropriate id in the assignedItem
+    // Delete
+
+    const eventId = req.params.eventId;
+    const itemId = req.params.itemId;
+
+    console.log(`Deleting item ${itemId} from event ${eventId}`);
+
+    AssignedItem.findOne({
+        where: {
+            eventId,
+            itemId
+        }
+    })
+        .then(result => {
+            if(!result) {
+                throw new Error(`Item ${itemId} and/or Event ${eventId} does not exist`)
+            }
+            AssignedItem.destroy({
+                where: {
+                    eventId,
+                    itemId
+                }
+            });
+        })
+        .then(() => {
+            res.status(200).json({
+                message: `Item ${itemId} from Event ${eventId} is deleted from ASSIGNEDITEM`
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: err.message
+            });
+        })
 });
 
 module.exports = router;
