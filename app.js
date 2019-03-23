@@ -4,8 +4,9 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const db = require("./utils/connection");
 
-// routes
-const helloRoutes = require("./api/routes/hello");
+/*
+  Routes
+*/
 const eventsRoutes = require("./api/routes/events");
 const guestsRoutes = require("./api/routes/guests");
 const itemsRoutes = require("./api/routes/items");
@@ -14,7 +15,9 @@ app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// setup route
+/*
+  Route Setup
+*/
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
@@ -29,7 +32,9 @@ app.use((req, res, next) => {
   });
 
 
-// Check database connection
+/*
+  Check database connection
+*/
 db
   .authenticate()
   .then(() => {
@@ -39,12 +44,17 @@ db
     console.error('Unable to connect to the database:', err);
   });
   
-// Routes that handles the requests
+/*
+  HTTP REQUESTS Routes
+*/
 app.use("/events", eventsRoutes);
 app.use("/guests", guestsRoutes);
 app.use("/items", itemsRoutes);
 
-// Route that handles a path that does not exist
+
+/*
+  ERROR route
+*/
 app.use((req, res, next) => {
     const error = new Error("Not Found");
     error.status = 404;

@@ -1,4 +1,3 @@
-const Sequelize = require("sequelize");
 const express = require("express");
 const router = express.Router();
 
@@ -8,6 +7,7 @@ const router = express.Router();
 
 // Middleware
 const checkFormatEvent = require("./../middleware/checkFormatEvent");
+const checkBodyFormat = require("./../middleware/checkBodyFormat");
 
 // Models
 const Event = require("./../models/event");
@@ -73,21 +73,13 @@ router.get("/", (req, res, next) => {
         include: [{
             model: Guest,
             through: {
-                attributes: [],
-                /*
-                    The attribute below are used to
-                    only show which ones are going
-                */
-                // where: {
-                //     isGoing: 1
-                // }
+                attributes: ["isGoing"]
             }
         }, {
             model: AssignedItem
         }]
     })
         .then(e => {
-            // res.status(200).json(e[0].assignedItems);
             res.status(200).json(e);
         })
         .catch(err => {
@@ -128,8 +120,7 @@ router.get("/:eventId", (req, res, next) => {
 });
 
 // POST a new event
-// **Task: I should add a middleware that checks whatever is being put on the BODY
-router.post("/", (req, res, next) => {
+router.post("/", checkBodyFormat, (req, res, next) => {
 
     let newEventId = null;
 
