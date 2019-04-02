@@ -135,6 +135,71 @@ router.post("/:eventId", (req, res, next) => {
         });
 });
 
+// POST a new item in the assigned item table
+// Check if 'eventId' exist, if so continue, if not throw error
+// Check if 'guestId' exist, if so continue, if not throw error
+// Check if 'itemId' exist, if so continue, if not throw error
+// Add the assigned item row with the specified item, event, and guest
+router.post("/:eventId/:itemId/:guestId", (req, res, next) => {
+
+    const eventId = req.params.eventId;
+    const itemId = req.params.itemId;
+    const guestId = req.params.guestId;
+
+    console.log("Adding assignedItem row");
+
+    Event.findOne({
+        where: {
+            rowid: eventId
+        }
+    })
+        .then(result => {
+            // Error will be thrown id the event id specfied does not exist
+            if(!result) {
+                throw `The eventId (${eventId}) you specified does not exist`;
+            }
+
+            return Item.findOne({
+                where: {
+                    rowid: itemId
+                }
+            })
+        })
+        .then(result => {
+            if(!result) {
+                throw `The itemId (${itemId}) you specified does not exist`;
+            }
+
+            return Guest.findOne({
+                where: {
+                    rowid: guestId
+                }
+            })
+        })
+        .then(result => {
+            if(!result) {
+                throw `The guestId (${guestId}) you specified does not exist`;
+            } 
+                       
+            return AssignedItem.create({
+                eventId,
+                itemId,
+                guestId
+            })
+        })
+        .then(e => {
+            res.status(201).json({
+                message: `Item ${itemId} is assigned to Guest ${guestId} for Event ${eventId}`
+            })
+        }) 
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+});
+
+
 // DELETE item from specified event
 router.delete("/:eventId/:itemId", (req, res, next) => {
     // Check if eventId exist
