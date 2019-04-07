@@ -147,12 +147,10 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             // ONLY do this action if isGoing is set to false(0)
             if (isGoing === 1) { return; }
             // Store all the returned rowid
-            console.log(allocatedItems);
-            row = allocatedItems[0];
+            row = allocatedItems.length > 0 ? allocatedItems[0] : null;
             for(let row of allocatedItems) {
                 rowIdList.push(row.rowid);
             }
-            console.log(rowIdList);
             // Change the first guestId to null and Delete everything else
 
             for(let id = 0; id < rowIdList.length; id++) {
@@ -175,7 +173,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             }
         })
         .then(() => {
-            if (isGoing === 1) { return; }
+            if (isGoing === 1 || row === null) { return; }
             return AssignedItem.findAll({
                 where: {
                     eventId,
@@ -185,7 +183,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             })
         })
         .then(allocatedItems => {
-            if (isGoing === 1) { return; }
+            if (isGoing === 1 || row === null) { return; }
             if(allocatedItems.length > 1) {
                 AssignedItem.destroy({
                     where: {
