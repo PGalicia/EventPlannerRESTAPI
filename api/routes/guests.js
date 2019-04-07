@@ -126,6 +126,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
     const guestId = req.params.guestId;
     const isGoing = Number.parseInt(req.params.isGoing);
     let rowIdList = [];
+    let row = null;
 
     EventGuest.update({isGoing}, {
         where: {
@@ -147,6 +148,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             if (isGoing === 1) { return; }
             // Store all the returned rowid
             console.log(allocatedItems);
+            row = allocatedItems[0];
             for(let row of allocatedItems) {
                 rowIdList.push(row.rowid);
             }
@@ -172,7 +174,25 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
                 })
             }
         })
-        .then(e => {
+        .then(() => {
+            return AssignedItem.findAll({
+                where: {
+                    eventId,
+                    itemId: row.itemId
+                },
+                raw: true
+            })
+        })
+        .then(allocatedItems => {
+            if(allocatedItems.length > 1) {
+                AssignedItem.destroy({
+                    where: {
+                        rowid: rowIdList[0]
+                    }
+                })
+            }
+        })
+        .then(() => {
             // res.status(200).json(e);
             res.status(200).json({
                 message: "Updated Succesfully"
