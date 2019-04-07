@@ -81,6 +81,7 @@ router.post("/:eventId", (req, res, next) => {
     
     const rowid = req.params.eventId;
     const name = req.body.name.toLowerCase();
+    let row = null;
     
     console.log(`Creating a new item for event ${rowid}`);
 
@@ -117,9 +118,20 @@ router.post("/:eventId", (req, res, next) => {
             return result;
         })
         .then(result => {
+            row = result;
+            return AssignedItem.findOne({
+                where : {
+                    eventId: rowid,
+                    itemId: result.rowid,
+                    guestId: null
+                }
+            })
+        })
+        .then(result => {
+            if(result) { return; }
             return AssignedItem.create({
                 eventId: rowid,
-                itemId: result.rowid,
+                itemId: row.rowid,
                 guestId: null
             })
         })
