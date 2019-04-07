@@ -175,6 +175,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             }
         })
         .then(() => {
+            if (isGoing === 1) { return; }
             return AssignedItem.findAll({
                 where: {
                     eventId,
@@ -184,6 +185,7 @@ router.patch("/:eventId/:guestId/:isGoing", checkFormatGuest, (req, res, next) =
             })
         })
         .then(allocatedItems => {
+            if (isGoing === 1) { return; }
             if(allocatedItems.length > 1) {
                 AssignedItem.destroy({
                     where: {
