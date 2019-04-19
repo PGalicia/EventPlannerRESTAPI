@@ -122,8 +122,7 @@ router.post("/:eventId", (req, res, next) => {
             return AssignedItem.findOne({
                 where : {
                     eventId: rowid,
-                    itemId: result.rowid,
-                    guestId: null
+                    itemId: result.rowid
                 }
             })
         })
